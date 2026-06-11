@@ -40,6 +40,16 @@
   .btn:active { transform: scale(0.98); }
   .btn-primary { background: #f0c040; color: #1a0a00; border-color: #f0c040; }
   .btn-secondary { background: #1a2540; color: #f0c040; }
+  .btn-google {
+    background: #ffffff;
+    color: #444;
+    border-color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .btn-google img { width: 18px; }
   .btn-link { background: none; border: none; color: #7aacdd; font-size: 13px; cursor: pointer; padding: 6px; }
 
   .field { text-align: left; }
@@ -78,6 +88,11 @@
 <div id="view-landing" class="panel">
   <button class="btn btn-primary" onclick="showView('login')">🔑 Log In</button>
   <button class="btn btn-secondary" onclick="showView('signup')">✍️ Sign Up</button>
+  <div style="margin: 10px 0; color: #445566; font-size: 12px;">OR</div>
+  <button class="btn btn-google" onclick="doGoogleLogin()">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+    Continue with Google
+  </button>
 </div>
 
 <!-- Log In form -->
@@ -93,7 +108,12 @@
     <input id="login-pass" type="password" placeholder="••••••••" autocomplete="current-password">
   </div>
   <div id="login-error" class="error"></div>
-  <button class="btn btn-primary" onclick="doLogin()">Log In</button>
+  <button id="login-btn" class="btn btn-primary" onclick="doLogin()">Log In</button>
+  <div style="margin: 5px 0; color: #445566; font-size: 12px; font-weight: bold;">OR</div>
+  <button class="btn btn-google" onclick="doGoogleLogin()">
+    <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+    Continue with Google
+  </button>
   <button class="btn-link" onclick="showView('landing')">← Back</button>
 </div>
 
@@ -142,16 +162,37 @@
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
 
+  // Handle Redirect Result (for Google Sign-In)
+  firebase.auth().getRedirectResult()
+    .then((result) => {
+      if (result.user) {
+        handleUserAuthenticated(result.user);
+      }
+    })
+    .catch((error) => {
+      console.error("Redirect Error:", error);
+      document.getElementById('login-error').textContent = error.message;
+    });
+
   // Check current auth state
   let isSigningUp = false;
   firebase.auth().onAuthStateChanged(user => {
     if (user && !isSigningUp) {
-      if (user.displayName) {
-        localStorage.setItem('wc_username', user.displayName);
-      }
-      location.replace('home.html');
+      handleUserAuthenticated(user);
     }
   });
+
+  function handleUserAuthenticated(user) {
+    const name = user.displayName || user.email.split('@')[0];
+
+    // Native Bridge-ke janano (MainActivity-te session save korbe)
+    if (window.Android && window.Android.login) {
+        window.Android.login(user.email, name);
+    } else {
+        localStorage.setItem('wc_username', name);
+        location.replace('home.html');
+    }
+  }
 
   function showView(name) {
     ['landing', 'login', 'signup'].forEach(v => {
@@ -178,6 +219,12 @@
       .catch(error => {
         err.textContent = error.message;
       });
+  }
+
+  function doGoogleLogin() {
+    const provider = new firebase.auth.GoogleAuthProvider();
+    // Android WebView-er jonno Redirect method-ti sobcheye reliable
+    firebase.auth().signInWithRedirect(provider);
   }
 
   function doSignup() {
