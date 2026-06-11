@@ -230,6 +230,7 @@ function renderGroupStage() {
         const card = document.createElement('div');
         card.className = 'prediction-card' + (userPredictions[m.id] ? ' is-saved' : '');
         card.id = 'card-' + m.id;
+        card.setAttribute('data-win', pred.win);
         card.innerHTML = `
           <div class="saved-badge">SAVED</div>
           <div class="teams-row">
@@ -257,14 +258,13 @@ function renderGroupStage() {
 }
 
 function onScoreChange(id) {
-  if (!userPredictions[id]) userPredictions[id] = { s1:'', s2:'', win:0 };
   document.getElementById('card-' + id).classList.add('changed');
 }
 
 function pickWinner(matchId, teamNum) {
-  if (!userPredictions[matchId]) userPredictions[matchId] = { s1:'', s2:'', win:0 };
-  userPredictions[matchId].win = teamNum;
-  document.getElementById('card-' + matchId).classList.add('changed');
+  const card = document.getElementById('card-' + matchId);
+  card.setAttribute('data-win', teamNum);
+  card.classList.add('changed');
   document.getElementById(`flag-${matchId}-1`).classList.toggle('selected-winner', teamNum === 1);
   document.getElementById(`flag-${matchId}-2`).classList.toggle('selected-winner', teamNum === 2);
   document.getElementById(`draw-${matchId}`).classList.remove('active');
@@ -272,9 +272,9 @@ function pickWinner(matchId, teamNum) {
 
 function setDraw(id, e) {
   e.stopPropagation();
-  if (!userPredictions[id]) userPredictions[id] = { s1:'', s2:'', win:0 };
-  userPredictions[id].win = 3;
-  document.getElementById('card-' + id).classList.add('changed');
+  const card = document.getElementById('card-' + id);
+  card.setAttribute('data-win', 3);
+  card.classList.add('changed');
   document.getElementById(`flag-${id}-1`).classList.remove('selected-winner');
   document.getElementById(`flag-${id}-2`).classList.remove('selected-winner');
   document.getElementById(`draw-${id}`).classList.add('active');
@@ -304,9 +304,10 @@ function confirmSave() {
   btn.innerText = "Saving...";
   btn.disabled = true;
 
+  const card = document.getElementById('card-' + id);
   const s1 = document.getElementById(`in-${id}-1`).value;
   const s2 = document.getElementById(`in-${id}-2`).value;
-  const win = userPredictions[id] ? userPredictions[id].win : 0;
+  const win = parseInt(card.getAttribute('data-win') || 0);
 
   const user = auth.currentUser;
   const uid = user ? user.uid : localStorage.getItem('last_uid');
@@ -320,12 +321,7 @@ function confirmSave() {
   db.ref('predictions/' + uid + '/' + id).set({
     s1: s1, s2: s2, win: win, timestamp: Date.now()
   }).then(() => {
-    userPredictions[id] = { s1, s2, win };
-    const card = document.getElementById('card-' + id);
-    if(card) {
-      card.classList.remove('changed');
-      card.classList.add('is-saved');
-    }
+    // The listener on firebase will update userPredictions and re-render
     closeModal();
     showToast('Saved Successfully! ⚽');
   }).catch(err => {
