@@ -1,5 +1,28 @@
 # World Cup 2026 Predictor — Android App
 
+## Project Overview (The "Vibe Coding" Journey)
+Ei application ti sampurna **"Vibe Coding"** method-e banano hoyeche. Mane holo, kono manual heavy coding chhara sudhu matro AI-ke natural language instructions diye (Android Studio + Gemini/Vibe) ei fully functional app-ti dar korano hoyeche. 
+
+### Why Vibe Coding?
+Conventional coding-er bodole, ekhane focus chhilo "Intent" ba uddeshyer upor. AI-ke bola hoyeche "Amake ekta 48-team bracket predictor baniye dao", ebong AI proyojoniyo HTML, CSS, JavaScript ebong Kotlin code generate kore diyeche. Dev-er kaj chhilo sudhu matro "Vibe" check kora ebong kono somossya hole conversational-ly seta solve kora.
+
+### Tech Stack:
+- **Frontend:** HTML5, CSS3 (Custom Gold/Dark UI), Vanilla JavaScript.
+- **Backend/Database:** Firebase Realtime Database (for predictions storage).
+- **Authentication:** Firebase Auth (Email/Password).
+- **Native Wrapper:** Android WebView (Kotlin based).
+- **Data Source:** Football-API (for live scores).
+
+### Key Features:
+- **48 Team Bracket:** FIFA World Cup 2026-er nuton 48-team format support kore.
+- **Interactive Predictor:** Group stage theke shuru kore Final porjonto protyekti match predict korar sujog.
+- **Live Score Integration:** Real-time football API (football-api-sports) babohar kore live scores ebong match events (scorers) dekhano hoy.
+- **Firebase Authentication:** Secure Login, Sign Up, ebong Account Deletion functionality.
+- **Custom Branding:** Dark mode UI-er shathe premium Gold branding ebong smooth animations.
+- **Progress Tracking:** User koyti match predict korlo tar ekta live progress bar dashboard-e dekhano hoy.
+
+---
+
 ## Android Studio-te Import kore Build korar Steps
 
 ### Step 1: Project Open koro
